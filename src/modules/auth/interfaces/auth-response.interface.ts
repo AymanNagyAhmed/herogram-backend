@@ -3,6 +3,7 @@ export interface AuthUserData {
   email: string;
   name: string | null;
   status: string;
+  role: string;
   profileImage: string | null;
 }
 

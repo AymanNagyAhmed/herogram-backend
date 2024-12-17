@@ -7,8 +7,9 @@ import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { ApiResponse } from '@/common/interfaces/api-response.interface';
 import { ApiResponseUtil } from '@/common/utils/api-response.util';
 import { ApplicationException } from '@/common/exceptions/application.exception';
-import * as bcrypt from 'bcryptjs';
 import * as bcryptjs from 'bcryptjs';
+import { DeepPartial } from 'typeorm';
+import { UserStatus, UserRole } from '@/modules/users/entities/user.entity';
 
 
 @Injectable()
@@ -35,7 +36,7 @@ export class UsersService {
                 );
             }
 
-            const hashedPassword = await bcrypt.hash(createUserDto.password, this.SALT_ROUNDS);
+            const hashedPassword = await bcryptjs.hash(createUserDto.password, this.SALT_ROUNDS);
             
             let profileImagePath: string | null = null;
             if (profileImage) {
@@ -46,13 +47,26 @@ export class UsersService {
                 ...createUserDto,
                 password: hashedPassword,
                 profileImage: profileImagePath,
-            });
+                status: UserStatus.ACTIVE,
+                role: UserRole.USER
+            } as DeepPartial<User>);
             
             const savedUser = await this.usersRepository.save(user);
-            const { password: _, ...userWithoutPassword } = savedUser;
+            
+            const userResponse = {
+                id: savedUser.id,
+                name: savedUser.name,
+                email: savedUser.email,
+                status: savedUser.status,
+                role: savedUser.role,
+                profileImage: savedUser.profileImage,
+                mediaFiles: savedUser.mediaFiles,
+                createdAt: savedUser.createdAt,
+                updatedAt: savedUser.updatedAt
+            };
             
             return ApiResponseUtil.success(
-                userWithoutPassword,
+                userResponse,
                 'User created successfully',
                 this.BASE_PATH,
                 HttpStatus.CREATED
@@ -91,13 +105,28 @@ export class UsersService {
     }
 
     async findOne(id: number): Promise<ApiResponse<User>> {
-        const user = await this.findUserById(id);
-        
-        return ApiResponseUtil.success(
-            user,
-            'User retrieved successfully',
-            `${this.BASE_PATH}/${id}`
-        );
+        try {
+            const user = await this.usersRepository.findOne({
+                where: { id },
+                select: ['id', 'email', 'name', 'status', 'role']
+            });
+
+            if (!user) {
+                throw new ApplicationException(
+                    `User with ID ${id} not found`,
+                    HttpStatus.NOT_FOUND,
+                    '/users'
+                );
+            }
+
+            return ApiResponseUtil.success(
+                user,
+                'User retrieved successfully',
+                '/users'
+            );
+        } catch (error) {
+            // ... error handling
+        }
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<ApiResponse<User>> {
@@ -149,7 +178,7 @@ export class UsersService {
                 `${this.BASE_PATH}/${id}`
             );
         } catch (error) {
-            console.log(error);
+            console.error(error);
             throw new ApplicationException(
                 'Failed to update user',
                 HttpStatus.BAD_REQUEST,

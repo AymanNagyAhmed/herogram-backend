@@ -1,5 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Media } from '@/modules/media/entities/media.entity';
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive'
+}
+
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin'
+}
 
 @Entity('users')
 export class User {
@@ -12,19 +23,31 @@ export class User {
   @Column('text', { unique: true })
   email: string;
 
-  @Column('varchar', { length: 255, default: 'active' })
-  status: string;
+  @Column({ type: 'enum', enum: UserStatus, name: 'status', default: UserStatus.ACTIVE })
+  status: UserStatus;
 
-  @Column('text', { nullable: true })
+  
+  @Column({ type: 'enum', enum: UserRole, name: 'role', default: UserRole.USER })
+  role: UserRole;
+
+
+
+  @Column('text', { name: 'profile_image', nullable: true })
   profileImage: string;
   
   @Column('text', { select: false })
   @Exclude()
   password: string;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP' })
+  @OneToMany(() => Media, (media) => media.user, { 
+    lazy: true,  
+    cascade: true 
+  })
+  mediaFiles: Promise<Media[]>;
+
+  @Column('datetime', { name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP' })
+  @Column('datetime', { name: 'updated_at', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 }

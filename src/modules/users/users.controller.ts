@@ -103,7 +103,6 @@ export class UsersController {
     @Req() req?: AuthenticatedRequest
   ) {
     if (req?.user) {
-      console.log('User from request:', req.user);
       this.checkUserAccess(req.user, id);
     }
     

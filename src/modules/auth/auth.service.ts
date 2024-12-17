@@ -19,7 +19,7 @@ export class AuthService {
   async validateUser(loginDto: LoginDto): Promise<AuthResponse> {
     const user = await this.usersRepository.findOne({
       where: { email: loginDto.email },
-      select: ['id', 'email', 'password', 'name', 'status', 'profileImage']
+      select: ['id', 'email', 'password', 'name', 'status', 'role', 'profileImage']
     });
     
     if (!user) {
@@ -46,11 +46,26 @@ export class AuthService {
       email: userData.email,
       name: userData.name,
       status: userData.status,
+      role: userData.role,
       profileImage: userData.profileImage,
     };
 
     return {
       user: transformedUser,
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async login(user: User) {
+    const payload = { 
+      email: user.email, 
+      sub: user.id,
+      name: user.name,
+      status: user.status,
+      role: user.role
+    };
+    
+    return {
       access_token: this.jwtService.sign(payload),
     };
   }
