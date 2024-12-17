@@ -26,6 +26,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiResponseInterceptor } from '@/common/interceptors/api-response.interceptor';
 import { Public } from '@/common/decorators/public.decorator';
+import { Media } from '@/modules/media/entities/media.entity';
 
 interface UserPayload {
   id: number;
@@ -154,6 +155,11 @@ export class UsersController {
     await this.usersService.update(id, { profileImage: imageUrl });
     
     return { imageUrl };
+  }
+
+  @Get(':id/media')
+  async getUserMedia(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUserMedia(id);
   }
 
   private checkUserAccess(user: UserPayload, targetUserId: number): void {

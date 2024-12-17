@@ -10,6 +10,7 @@ import { ApplicationException } from '@/common/exceptions/application.exception'
 import * as bcryptjs from 'bcryptjs';
 import { DeepPartial } from 'typeorm';
 import { UserStatus, UserRole } from '@/modules/users/entities/user.entity';
+import { Media } from '@/modules/media/entities/media.entity';
 
 
 @Injectable()
@@ -259,5 +260,31 @@ export class UsersService {
                 profileImage: true,
             }
         });
+    }
+
+    async getUserMedia(id: number): Promise<ApiResponse<Media[]>> {
+        try {
+            // First check if user exists
+            const user = await this.findUserById(id);
+            
+            // Get media files for this user
+            const mediaFiles = await user.mediaFiles;
+            
+            return ApiResponseUtil.success(
+                mediaFiles,
+                'User media files retrieved successfully',
+                `${this.BASE_PATH}/${id}/media`
+            );
+        } catch (error) {
+            if (error instanceof ApplicationException) {
+                throw error;
+            }
+            throw new ApplicationException(
+                'Failed to retrieve user media files',
+                HttpStatus.BAD_REQUEST,
+                `${this.BASE_PATH}/${id}/media`,
+                [{ message: error.message }]
+            );
+        }
     }
 }
