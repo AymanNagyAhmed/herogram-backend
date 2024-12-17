@@ -6,9 +6,11 @@ import { AppService } from '@/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '@/modules/users/users.module';
 import { User } from '@/modules/users/entities/user.entity';
+import { Media } from '@/modules/media/entities/media.entity';
+import { Tag } from '@/modules/tags/entities/tag.entity';
 import { AuthModule } from '@/modules/auth/auth.module';
-import { MediaController } from '@/common/controllers/media.controller';
-import { MediaService } from '@/common/services/media.service';
+import { MediaModule } from './modules/media/media.module';
+import { TagsModule } from './modules/tags/tags.module';
 
 @Module({
   imports: [
@@ -25,15 +27,24 @@ import { MediaService } from '@/common/services/media.service';
         username: configService.get<string>('DB_USER', 'admin'),
         password: configService.get<string>('DB_PASSWORD', '@12345Admin'),
         database: configService.get<string>('DB_NAME', 'starter_db'),
-        entities: [User],
+        entities: [
+          User,
+          Tag,
+          Media,
+        ],
         synchronize: configService.get<string>('NODE_ENV') === 'development',
+        logging: true,
+        migrationsRun: true,
+        migrationsTransactionMode: 'each',
       }),
     }),
     UsersModule,
+    TagsModule,
+    MediaModule,
     AuthModule,
   ],
-  controllers: [AppController, MediaController],
-  providers: [AppService, MediaService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
 
