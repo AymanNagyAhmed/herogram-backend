@@ -13,13 +13,13 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
   const configService = app.get(ConfigService);
-  // Add global prefix with exclusions
+  // CORS should be enabled before setting global prefix
+  app.enableCors(createCorsConfig(configService));
+  
+  // Then set global prefix
   app.setGlobalPrefix('api', {
     exclude: ['/public/*']
   });
-  
-  // CORS
-  app.enableCors(createCorsConfig(configService));
   
   // Global pipes
   app.useGlobalPipes(
