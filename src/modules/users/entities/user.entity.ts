@@ -20,7 +20,7 @@ export class User {
   @Column('varchar', { length: 255, nullable: true })
   name: string;
 
-  @Column({type: 'text', length: 500, unique: true })
+  @Column({type: 'varchar', length: 100, unique: true })
   email: string;
 
   @Column({ type: 'enum', enum: UserStatus, name: 'status', default: UserStatus.ACTIVE })
@@ -32,10 +32,10 @@ export class User {
 
 
 
-  @Column({type: 'text', name: 'profile_image', nullable: true })
+  @Column({type: 'varchar', length:255, name: 'profile_image', nullable: true })
   profileImage: string;
   
-  @Column({type: 'text', select: false })
+  @Column({type: 'varchar', length: 255, select: false })
   @Exclude()
   password: string;
 

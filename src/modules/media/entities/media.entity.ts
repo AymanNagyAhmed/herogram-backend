@@ -35,10 +35,10 @@ export class Media {
   @JoinColumn({ name: 'user_id' })
   user: Promise<User>;
 
-  @Column({type: 'text', name: 'file_path' })
+  @Column({type: 'varchar',length: 255, name: 'file_path' })
   file_path: string;
 
-  @Column('varchar', { name: 'file_name', length: 255 })
+  @Column({type: 'varchar', length: 255, name: 'file_name' })
   file_name: string;
 
   @Column({ type: 'enum', enum: MediaType, name: 'file_type' })
@@ -53,7 +53,7 @@ export class Media {
   @Column({ name: 'file_size', type: 'bigint' })
   file_size: number;
 
-  @Column({type: 'text', name: 'original_name' })
+  @Column({type: 'varchar', length: 255, name: 'original_name' })
   original_name: string;
 
   @ManyToMany(() => Tag, (tag) => tag.media, { cascade: true })
