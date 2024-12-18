@@ -20,7 +20,7 @@ export class User {
   @Column('varchar', { length: 255, nullable: true })
   name: string;
 
-  @Column({type: 'text', unique: true })
+  @Column({type: 'text', length: 500, unique: true })
   email: string;
 
   @Column({ type: 'enum', enum: UserStatus, name: 'status', default: UserStatus.ACTIVE })
