@@ -17,10 +17,10 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text', { nullable: true })
+  @Column('varchar', { length: 255, nullable: true })
   name: string;
 
-  @Column('text', { unique: true })
+  @Column({type: 'text', unique: true })
   email: string;
 
   @Column({ type: 'enum', enum: UserStatus, name: 'status', default: UserStatus.ACTIVE })
@@ -32,10 +32,10 @@ export class User {
 
 
 
-  @Column('text', { name: 'profile_image', nullable: true })
+  @Column({type: 'text', name: 'profile_image', nullable: true })
   profileImage: string;
   
-  @Column('text', { select: false })
+  @Column({type: 'text', select: false })
   @Exclude()
   password: string;
 
